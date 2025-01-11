@@ -3029,9 +3029,11 @@ private:
     // Update the width/height of the column/row being drag-resized.
     // Should be only called when m_dragRowOrCol != -1, i.e. dragging is
     // actually in progress.
+    //Orca: add cursor mode for DoGridDragResize's paremeters
     void DoGridDragResize(const wxPoint& position,
                           const wxGridOperations& oper,
-                          wxGridWindow* gridWindow);
+                          wxGridWindow* gridWindow,
+                          CursorMode mode);
 
     // process different clicks on grid cells
     void DoGridCellLeftDown(wxMouseEvent& event,

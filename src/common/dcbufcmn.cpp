@@ -83,9 +83,16 @@ private:
         const double scale = dc ? dc->GetContentScaleFactor() : 1.0;
         wxBitmap* const buffer = new wxBitmap;
 
+// DBUZZ: check if it really needed
+#if 0 && __WXMSW__
+        // we must always return a valid bitmap but creating a bitmap of
+        // size 0 would fail, so create a 1*1 bitmap in this case
+        buffer->Create(wxMax(w, 1), wxMax(h, 1), 24);
+#else
         // we must always return a valid bitmap but creating a bitmap of
         // size 0 would fail, so create a 1*1 bitmap in this case
         buffer->CreateWithDIPSize(wxMax(w, 1), wxMax(h, 1), scale);
+#endif
 
         return buffer;
     }
