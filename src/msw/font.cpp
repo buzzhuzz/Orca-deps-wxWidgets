@@ -52,7 +52,7 @@ static const int PITCH_MASK = FIXED_PITCH | VARIABLE_PITCH;
 class WXDLLEXPORT wxFontRefData: public wxGDIRefData
 {
 public:
-    wxFontRefData(const wxFontInfo& info = wxFontInfo());
+    wxFontRefData(const wxFontInfo& info = wxFontInfo(), const wxWindow* window = nullptr);
 
     wxFontRefData(const wxNativeFontInfo& info, WXHFONT hFont = 0)
     {
@@ -322,7 +322,7 @@ protected:
 // wxFontRefData
 // ----------------------------------------------------------------------------
 
-wxFontRefData::wxFontRefData(const wxFontInfo& info)
+wxFontRefData::wxFontRefData(const wxFontInfo& info, const wxWindow *window)
 {
     m_hFont = nullptr;
 
@@ -333,7 +333,7 @@ wxFontRefData::wxFontRefData(const wxFontInfo& info)
     }
     else
     {
-        m_nativeFontInfo.SetSizeOrDefault(info.GetFractionalPointSize());
+        m_nativeFontInfo.SetSizeOrDefault(info.GetFractionalPointSize(), window);
     }
 
     SetStyle(info.GetStyle());
@@ -516,12 +516,12 @@ wxFontEncoding wxNativeFontInfo::GetEncoding() const
     return wxGetFontEncFromCharSet(lf.lfCharSet);
 }
 
-void wxNativeFontInfo::SetFractionalPointSize(double pointSizeNew)
+void wxNativeFontInfo::SetFractionalPointSize(double pointSizeNew, const wxWindow *window)
 {
     // We don't have the correct DPI to use here, so use that of the
     // primary screen and rely on WXAdjustToPPI() changing it later if
     // necessary.
-    const int ppi = ::GetDeviceCaps(ScreenHDC(), LOGPIXELSY);
+    const int ppi = window ? window->GetDPI().GetY() : ::GetDeviceCaps(ScreenHDC(), LOGPIXELSY);
     lf.lfHeight = GetLogFontHeightAtPPI(pointSizeNew, ppi);
 
     pointSize = pointSizeNew;
@@ -810,9 +810,9 @@ wxFont::wxFont(const wxString& fontdesc)
         (void)Create(info);
 }
 
-wxFont::wxFont(const wxFontInfo& info)
+wxFont::wxFont(const wxFontInfo& info, const wxWindow *window)
 {
-    m_refData = new wxFontRefData(info);
+    m_refData = new wxFontRefData(info, window);
 }
 
 bool wxFont::Create(const wxNativeFontInfo& info, WXHFONT hFont)

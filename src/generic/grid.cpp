@@ -4234,7 +4234,8 @@ void wxGrid::ProcessRowColLabelMouseEvent( const wxGridOperations &oper, wxMouse
             {
                 // resizing a row/col
                 // or the labels at the edge to the corner label window
-                DoGridDragResize(event.GetPosition(), oper, gridWindow);
+                //Orca: add cursor mode for DoGridDragResize's paremeters
+                DoGridDragResize(event.GetPosition(), oper, gridWindow, oper.GetCursorModeResize());
             }
             else if ( labelEdgeOper && m_cursorMode == labelEdgeOper->GetCursorModeResize() )
             {
@@ -4958,7 +4959,7 @@ bool wxGrid::DoGridDragEvent(wxMouseEvent& event,
         {
             const auto oper(DoGetOperationsFromCursorMode());
             if ( m_dragLabel || m_dragRowOrCol != -1 )
-                DoGridDragResize(event.GetPosition(), *oper, gridWindow);
+                DoGridDragResize(event.GetPosition(), *oper, gridWindow, m_cursorMode);
         }
         break;
 
@@ -5057,6 +5058,8 @@ wxGrid::DoGridCellLeftDown(wxMouseEvent& event,
                             case wxGridSelectCells:
                             case wxGridSelectRowsOrColumns:
                                 // nothing to do in these cases
+                                //Orca: select this cell when first click
+                                m_selection->SelectBlock(coords.GetRow(), coords.GetCol(), coords.GetRow(), coords.GetCol(), event);
                                 break;
 
                             case wxGridSelectRows:
@@ -5332,9 +5335,11 @@ void wxGrid::ProcessGridCellMouseEvent(wxMouseEvent& event, wxGridWindow *eventG
     }
 }
 
+//Orca: add cursor mode for DoGridDragResize's paremeters
 void wxGrid::DoGridDragResize(const wxPoint& position,
                               const wxGridOperations& oper,
-                              wxGridWindow* gridWindow)
+                              wxGridWindow* gridWindow,
+                              CursorMode mode)
 {
     wxCHECK_RET( m_dragRowOrCol != -1 || m_dragLabel,
                  "shouldn't be called when not drag resizing" );
@@ -5355,6 +5360,22 @@ void wxGrid::DoGridDragResize(const wxPoint& position,
             oper.SetLabelSize(this, wxMax(linePos + oper.GetLabelSize(this), oper.GetMinimalLabelSize(this)));
         else
             oper.SetLabelSize(this, wxMax(linePos, oper.GetMinimalLabelSize(this)));
+    }
+    //Orca: add logic for resize multiplexed cols
+    else if (mode == WXGRID_CURSOR_RESIZE_COL)
+    {
+        int col_to_resize = m_dragRowOrCol;
+        int num_rows, num_cols;
+        this->GetCellSize(0, m_dragRowOrCol, &num_rows, &num_cols);
+        if (num_cols < 1)
+            col_to_resize = m_dragRowOrCol - 1;
+
+        const int lineEnd = oper.GetLineEndPos(this, m_dragRowOrCol);
+        const int lineSize = oper.GetLineSize(this, col_to_resize);
+        int size = linePos - lineEnd + lineSize;
+        oper.SetLineSize(this, col_to_resize,
+                         wxMax(size,
+                               oper.GetMinimalLineSize(this, col_to_resize)));
     }
     else
     {
@@ -5384,7 +5405,8 @@ wxPoint wxGrid::GetPositionForResizeEvent(int width) const
 
 void wxGrid::DoEndDragResizeRowOrCol(const wxMouseEvent& event, wxGridWindow* gridWindow, const wxGridOperations& oper)
 {
-    DoGridDragResize(event.GetPosition(), oper, gridWindow);
+    //Orca: add cursor mode for DoGridDragResize's paremeters
+    DoGridDragResize(event.GetPosition(), oper, gridWindow, oper.GetCursorModeResize());
     SendGridSizeEvent(oper.GetEventTypeLineSize(), m_dragRowOrCol, event);
     m_dragRowOrCol = -1;
 }
@@ -5392,7 +5414,7 @@ void wxGrid::DoEndDragResizeRowOrCol(const wxMouseEvent& event, wxGridWindow* gr
 void wxGrid::DoEndDragResizeLabel(const wxMouseEvent& event, wxGridWindow* gridWindow,
     const wxGridOperations& oper)
 {
-    DoGridDragResize(event.GetPosition(), oper, gridWindow);
+    DoGridDragResize(event.GetPosition(), oper, gridWindow, oper.GetCursorModeResize());
     SendGridSizeEvent(oper.GetEventTypeLabelSize(), -1, event);
     m_dragLabel = false;
 }
@@ -5404,9 +5426,10 @@ void wxGrid::DoHeaderStartDragResizeCol(int col)
 
 void wxGrid::DoHeaderDragResizeCol(int width)
 {
+    //Orca: add cursor mode for DoGridDragResize's paremeters
     DoGridDragResize(GetPositionForResizeEvent(width),
                      wxGridColumnOperations(),
-                     m_gridWin);
+                     m_gridWin, WXGRID_CURSOR_RESIZE_COL);
 }
 
 void wxGrid::DoHeaderEndDragResizeCol(int width)
@@ -6327,6 +6350,10 @@ void wxGrid::OnKeyDown( wxKeyEvent& event )
                     DisableCellEditControl();
 
                     MoveCursorDown( event.ShiftDown() );
+                    //Orca: select this cell when first click
+                    m_selection->SelectBlock(m_currentCellCoords.GetRow(), m_currentCellCoords.GetCol(),
+                                             m_currentCellCoords.GetRow(), m_currentCellCoords.GetCol(),
+                                             event);
                 }
                 break;
 

@@ -236,7 +236,7 @@ static float GetCursorScale()
 }
 
 // Get a system metric, e.g. scrollbar size
-int wxSystemSettingsNative::GetMetric(wxSystemMetric index, const wxWindow* WXUNUSED(win))
+int wxSystemSettingsNative::GetMetric(wxSystemMetric index, const wxWindow* win)
 {
     int value;
 
@@ -274,11 +274,11 @@ int wxSystemSettingsNative::GetMetric(wxSystemMetric index, const wxWindow* WXUN
         // TODO case wxSYS_WINDOWMIN_Y:
 
         case wxSYS_SCREEN_X:
-            wxDisplaySize(&value, nullptr);
+            wxDisplaySize(win, &value, nullptr);
             return value;
 
         case wxSYS_SCREEN_Y:
-            wxDisplaySize(nullptr, &value);
+            wxDisplaySize(win, nullptr, &value);
             return value;
 
         // TODO case wxSYS_FRAMESIZE_X:

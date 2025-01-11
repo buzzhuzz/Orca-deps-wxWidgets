@@ -1663,6 +1663,15 @@ outlineView:(NSOutlineView*)outlineView
     }
 }
 
+//FIXME Vojtech: This is a workaround to get at least the "mouse move" events at the wxDataViewControl,
+// so we can show the tooltips. The "mouse move" events are being send only if the wxDataViewControl
+// has focus, which is a limitation of wxWidgets. We may grab focus on "mouse entry" though.
+- (void)mouseMoved:(NSEvent *)event
+{
+if (! implementation->DoHandleMouseEvent(event))
+        [super mouseMoved:event];
+}
+
 //
 // delegate methods
 //
@@ -2599,6 +2608,14 @@ void wxCocoaDataViewControl::HitTest(const wxPoint& point_, wxDataViewItem& item
     point.y += visibleRect.origin.y;
 
     NSPoint const nativePoint = wxToNSPoint((NSScrollView*) GetWXWidget(),point);
+
+    NSTableHeaderView *headerView = [m_OutlineView headerView];
+    if (headerView && point.y < headerView.visibleRect.size.height) {
+        // The point is inside the header area.
+        columnPtr = NULL;
+        item      = wxDataViewItem();
+        return;
+    }
 
     int indexColumn;
     int indexRow;

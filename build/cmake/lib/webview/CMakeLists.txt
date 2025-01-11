@@ -49,7 +49,6 @@ elseif(WXMSW)
         set(WEBVIEW2_VERSION "1.0.1722.45")
         set(WEBVIEW2_URL "https://www.nuget.org/api/v2/package/Microsoft.Web.WebView2/${WEBVIEW2_VERSION}")
         set(WEBVIEW2_SHA256 "10d78e9e11c7851f0a8bf0dd4c22bbf6383de45bd337e1be42240b103812947d")
-
         set(WEBVIEW2_DEFAULT_PACKAGE_DIR "${CMAKE_CURRENT_BINARY_DIR}/packages/Microsoft.Web.WebView2.${WEBVIEW2_VERSION}")
 
         if(NOT EXISTS ${WEBVIEW2_PACKAGE_DIR})
