@@ -4240,7 +4240,7 @@ void wxGrid::ProcessRowColLabelMouseEvent( const wxGridOperations &oper, wxMouse
             else if ( labelEdgeOper && m_cursorMode == labelEdgeOper->GetCursorModeResize() )
             {
                 // resizing labels at the edge to the grid window
-                DoGridDragResize(posEvent, *labelEdgeOper, nullptr);
+                DoGridDragResize(posEvent, *labelEdgeOper, nullptr, labelEdgeOper->GetCursorModeResize());
             }
             else if ( m_cursorMode == oper.GetCursorModeSelect() && line >=0 )
             {
@@ -4681,7 +4681,7 @@ void wxGrid::ProcessCornerLabelMouseEvent( wxMouseEvent& event )
         {
             if ( oper && m_cursorMode == oper->GetCursorModeResize() )
             {
-                DoGridDragResize(event.GetPosition(), *oper, nullptr);
+                DoGridDragResize(event.GetPosition(), *oper, nullptr, oper->GetCursorModeResize());
             }
         }
         return;
