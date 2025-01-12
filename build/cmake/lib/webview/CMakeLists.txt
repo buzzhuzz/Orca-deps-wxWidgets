@@ -13,8 +13,10 @@ function(wx_webview_copy_webview2_loader target)
     endif()
 
     if(wxPLATFORM_ARCH)
+        message(WARNING "dbuzz: webview arch ${wxPLATFORM_ARCH}")
         set(WEBVIEW2_ARCH ${wxPLATFORM_ARCH})
     else()
+        message(WARNING "dbuzz: webview arch defaults to x86")
         set(WEBVIEW2_ARCH x86)
     endif()
 
