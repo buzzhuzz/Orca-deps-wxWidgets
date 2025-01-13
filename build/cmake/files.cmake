@@ -2546,6 +2546,11 @@ set(WEBVIEW_GTK_HDR
     wx/gtk/webview_webkit.h
 )
 
+set(WEBVIEW2_GTK_HDR
+    wx/gtk/webviewhistoryitem_webkit.h
+    wx/gtk/webview_webkit.h
+)
+
 set(WEBVIEW_GTK_SRC
     src/gtk/webview_webkit.cpp
 )
